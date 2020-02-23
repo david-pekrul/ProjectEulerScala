@@ -1,6 +1,6 @@
 package euler
 
-object Problem684 {
+object Problem124 {
   def main(args: Array[String]): Unit = {
 
     val upperLimit = 100000
