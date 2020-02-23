@@ -35,6 +35,10 @@ object Numbers {
     primes.getOrElse(findPrimesBelowLimit(input)).takeWhile(p => p <= input).filter(prime => input%prime==0)
   }
 
+//  def primeFactors(input: Int, primes: Option[Seq[Int]] = None): Seq[Int] = {
+//    primes.getOrElse(findPrimesBelowLimit(input)).takeWhile(p => p <= input).filter(prime => input%prime==0)
+//  }
+
 
 //  def fibonacci(terms: Int): Seq[Int] = {
 //    val n1 = 0
