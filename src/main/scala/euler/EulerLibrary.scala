@@ -40,13 +40,10 @@ object Numbers {
 //  }
 
 
-//  def fibonacci(terms: Int): Seq[Int] = {
-//    val n1 = 0
-//    val n2 = 1
-//    (1 to terms).map(_ => {
-//
-//    })
-//  }
+  def fibonacci(terms: Int): Stream[Int] = {
+    lazy val fibs: Stream[Int] = 0 #:: 1 #:: fibs.zip(fibs.tail).map { n => n._1 + n._2 }
+    fibs.take(terms)
+  }
 
 
 //  def sqt(n:ULong) :ULong = {
