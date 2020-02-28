@@ -17,52 +17,58 @@ object Problem684 {
 
     var index = 1;
     val answerNaturalNumbers =
-    naturalNumbers
-      .map(fib => fib -> numberToDigitSumMod_FAST(fib))
-      .map(x => {
-//        println(index, x);
-        index = index + 1;
-        x // (index, (fibonacci, digitSumMod))
-      })
-      .map(x => x._2)
-      .reverse.zipWithIndex
-
-      .map { case (sSum, index) => (index + 1, sSum) } // pair each S(fib) sum number with the multiplication factor
-      .map(x => {
-//        println(x);
-        x // (scalar, digitSumMod)
-      })
-      .map { case (scalar, sNum) => {
-        sNum * 1
-      }
-      }
-      .fold(BigInt(0)) { case (sum, next) => (sum + next).mod(answerMod) }
-      .mod(answerMod)
-
-    println(s"answerNaturalNumbers: $answerNaturalNumbers")
-
-    index = 2;
-    val answer =
-      fibonacci.drop(2) // drop the first 0 and 1 of the fibonacci sequence. This problem starts at index 2
+      naturalNumbers
         .map(fib => fib -> numberToDigitSumMod_FAST(fib))
         .map(x => {
-          println(index, x); index = index + 1; x // (index, (fibonacci, digitSumMod))
+          //        println(index, x);
+          index = index + 1;
+          x // (index, (fibonacci, digitSumMod))
         })
         .map(x => x._2)
         .reverse.zipWithIndex
 
         .map { case (sSum, index) => (index + 1, sSum) } // pair each S(fib) sum number with the multiplication factor
         .map(x => {
-          println(x); x // (scalar, digitSumMod)
+          //        println(x);
+          x // (scalar, digitSumMod)
         })
         .map { case (scalar, sNum) => {
-          sNum * scalar
+          sNum * 1
         }
         }
         .fold(BigInt(0)) { case (sum, next) => (sum + next).mod(answerMod) }
         .mod(answerMod)
+    println(s"answerNaturalNumbers: $answerNaturalNumbers")
 
-    println(s"Answer $answer")
+    val answer = (2 to 30) //outer range
+      .map(innerLimit => { //innerLimit = i from the website
+        (BigInt(1) to fibonacci(innerLimit)).map {k =>
+          k
+        }
+      })
+
+
+    //    val answer =
+    //      fibonacci.drop(2) // drop the first 0 and 1 of the fibonacci sequence. This problem starts at index 2
+    //        .map(fib => fib -> numberToDigitSumMod_FAST(fib))
+    //        .map(x => {
+    //          println(index, x); index = index + 1; x // (index, (fibonacci, digitSumMod))
+    //        })
+    //        .map(x => x._2)
+    //        .reverse.zipWithIndex
+    //
+    //        .map { case (sSum, index) => (index + 1, sSum) } // pair each S(fib) sum number with the multiplication factor
+    //        .map(x => {
+    //          println(x); x // (scalar, digitSumMod)
+    //        })
+    //        .map { case (scalar, sNum) => {
+    //          sNum * scalar
+    //        }
+    //        }
+    //        .fold(BigInt(0)) { case (sum, next) => (sum + next).mod(answerMod) }
+    //        .mod(answerMod)
+    //    println(s"Answer $answer")
+
 
     /* This is the test to make sure I have enough powers of 10^x such that I can always find a sum of Xi equal to the max exponent of 10 for the mod math.*/
     //    (1 to 60)
@@ -103,28 +109,28 @@ object Problem684 {
     //      .fold(BigInt(0)){case (sum,next) => sum+next}.mod(answerMod)
   }
 
-//  def numberToDigitSumNumber(input: BigInt): BigInt = {
-//    val numberOfNines = (input / 9).intValue()
-//    val string = s"${input % 9}" + (BigInt(1) to numberOfNines).map(_ => "9").mkString("")
-//    //    println(s"$numberOfNines ==> $string")
-//    BigInt(string)
-//  }
+  //  def numberToDigitSumNumber(input: BigInt): BigInt = {
+  //    val numberOfNines = (input / 9).intValue()
+  //    val string = s"${input % 9}" + (BigInt(1) to numberOfNines).map(_ => "9").mkString("")
+  //    //    println(s"$numberOfNines ==> $string")
+  //    BigInt(string)
+  //  }
 
-/*  def numberToDigitSumNumber2(input: BigInt): BigInt = {
-    val exponent = (input / 9).intValue
-    val firstDigit = (input % 9) + 1
-    val x = (firstDigit.intValue * BigInt(10).pow(exponent)) - 1
-    println(input)
-    x
-  }
+  /*  def numberToDigitSumNumber2(input: BigInt): BigInt = {
+      val exponent = (input / 9).intValue
+      val firstDigit = (input % 9) + 1
+      val x = (firstDigit.intValue * BigInt(10).pow(exponent)) - 1
+      println(input)
+      x
+    }
 
-  def numberToDigitSumNumberMod(input: BigInt, modValue: Int): BigInt = {
-    val exponent = (input / 9).intValue
-    val firstDigit = (input % 9) + 1
-    val x = ((firstDigit.intValue * BigInt(10).pow(exponent).mod(modValue)) - 1).mod(modValue)
-    println(s"$input, exponent: $exponent")
-    x
-  }*/
+    def numberToDigitSumNumberMod(input: BigInt, modValue: Int): BigInt = {
+      val exponent = (input / 9).intValue
+      val firstDigit = (input % 9) + 1
+      val x = ((firstDigit.intValue * BigInt(10).pow(exponent).mod(modValue)) - 1).mod(modValue)
+      println(s"$input, exponent: $exponent")
+      x
+    }*/
 
   def numberToDigitSumMod_FAST(input: BigInt) = {
 
