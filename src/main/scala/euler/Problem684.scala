@@ -7,67 +7,36 @@ object Problem684 {
 
   def main(args: Array[String]): Unit = {
 
+    val startTime = System.currentTimeMillis()
+
     val upperLimit = 90
     val fibonacci = Numbers.fibonacciBigInt(upperLimit + 1).force.toSeq
-    val naturalNumbers = (1 to 20)
 
     val maxFib = fibonacci.last
-    println(s"MaxFib: $maxFib")
-    println(numberToDigitSumMod_FAST(maxFib))
+//    println(s"MaxFib: $maxFib")
+//    println(numberToDigitSumMod_FAST(maxFib))
 
-    val x = (BigInt(1) to BigInt(10).pow(8)).map{n =>
-      n -> numberToDigitSumNumber(n)
-    }.takeWhile(p => p._2 <= answerMod)
+    val truncatedFib = fibonacci.drop(2)
 
+    lazy val answer = (2 to upperLimit)
+      .map(outerIndex => {
+        def startIndex = 1
 
-    println(x.size)
+        def endIndex = fibonacci(outerIndex)
 
+        def modSum = sumModOfInverseDigitSumsOverRange(startIndex, endIndex)
 
+        val x = (outerIndex, endIndex, modSum)
+//        println(x)
+        x
+      })
+      .map(_._3)
+      .fold(BigInt(0)) { case (acc, next) => (acc + next).mod(answerMod) }
 
-/*    var index = 1;
-    val answerNaturalNumbers =
-      naturalNumbers
-        .map(fib => fib -> numberToDigitSumMod_FAST(fib))
-        .map(x => {
-          index = index + 1;
-          x // (index, (fibonacci, digitSumMod))
-        })
-        .map(x => x._2)
-        .reverse.zipWithIndex
-        .map { case (sSum, index) => (index + 1, sSum) } // pair each S(fib) sum number with the multiplication factor
-        .map { case (scalar, sNum) => {
-          sNum * 1
-        }
-        }
-        .fold(BigInt(0)) { case (sum, next) => (sum + next).mod(answerMod) }
-        .mod(answerMod)
-    println(s"answerNaturalNumbers: $answerNaturalNumbers")*/
+    val endTime = System.currentTimeMillis()
+    println(answer)
 
-    //    val answerNaturalNumbers =
-    //    //      fibonacci.drop(2) // drop the first 0 and 1 of the fibonacci sequence. This problem starts at index 2
-    //      (1 to 20)
-    //        .map(fib => numberToDigitSumNumber(fib).mod(answerMod))
-    //        .reverse.zipWithIndex.map(x => (x._2+1,x._1)) // pair each fibonacci number with the multiplication factor
-    //        .map{case (scalar,sNum) => sNum}
-    //        .fold(BigInt(0)){case (sum,next) => (sum+next).mod(answerMod)}
-    //        .mod(answerMod)
-    //    println(s"answerNaturalNumbers $answerNaturalNumbers")
-
-    /*This is for checking the S(20) = 1074 case*/
-    //    val naturalNumbers = (1 to 20)
-    //
-    //    val x = (BigInt(0) to maxFib by 9).map(maxSum => {
-    //      val next = (1 to 9).map(i => {
-    //        if (naturalNumbers.contains(maxSum + i)) {
-    //          println(s"Found answer for ${maxSum + i} = ${i + start}")
-    //          Some(BigDigitSum(i + start, maxSum + i))
-    //        } else {
-    //          None
-    //        }
-    //      })
-    //      start = start + "9"
-    //      next
-    //    })
+    println(s"Calculation time: ${(endTime-startTime)/1000.0}")
   }
 
   def old_numberToDigitSumNumber(input: BigInt): BigInt = {
@@ -123,7 +92,6 @@ object Problem684 {
       }
 
 
-
     val tenToExponentMod = powTenModValues.fold(BigInt(1)) { case (product, nextPowTenMod) => {
       (product * nextPowTenMod).mod(answerMod)
     }
@@ -131,9 +99,10 @@ object Problem684 {
 
 
     val returnValue = ((tenToExponentMod * firstDigit) - 1).mod(answerMod)
-    println(s"input:$input, firstDigit:$firstDigit*10^$exponent % $answerMod = $returnValue")
-    def tenBrokenUp = powTenExponents.map(x => "(10^"+x.bigInteger.toString()+")")
-    println(s"$exponent = 2^${powTenExponents.toString}")
+
+    //    println(s"input:$input, firstDigit:$firstDigit*10^$exponent % $answerMod = $returnValue")
+    def tenBrokenUp = powTenExponents.map(x => "(10^" + x.bigInteger.toString() + ")")
+    //    println(s"$exponent = 2^${powTenExponents.toString}")
 
     returnValue
   }
@@ -161,6 +130,50 @@ object Problem684 {
       }
   }
 
+  //  def modInverse(input: BigInt, modValue: BigInt): BigInt = {
+  //    input.modInverse(modValue)
+  ////    (modValue+1)/input
+  //  }
+
+  def sumModOfInverseDigitSumsOverRange(startingIndex: Int, endingIndex: BigInt): BigInt = {
+    /* https://math.stackexchange.com/questions/209591/modulo-of-series-summation */
+    /* For this problem, endingIndex should be Fib[n] */
+    val startingQIndex = endingIndex - (endingIndex % 9) + 1
+    val k = endingIndex / 9
+
+
+    val (firstTerm, secondTerm) = if (endingIndex < BigInt(10)) {
+      (BigInt(0), BigInt(0))
+    }
+    else {
+      val f = (((BigInt(10).modPow(k, answerMod)) -1) *6).mod(answerMod)
+      val s = (9 * k.mod(answerMod)) % answerMod
+      (f,s)
+    }
+
+    val Q = sumModOfInverseDigitSumsRemainingQ(startingQIndex, endingIndex)
+
+    val x = (firstTerm - secondTerm + Q).mod(answerMod)
+    x
+  }
+
+  /** *
+   * This function is for getting the mod-sum of the remaining up-to 8 terms in Q that fall outside
+   * the closed formula for the sum.
+   *
+   * @param startingIndex
+   * @param endingIndex
+   * @return
+   */
+  def sumModOfInverseDigitSumsRemainingQ(startingIndex: BigInt, endingIndex: BigInt): BigInt = {
+    if (endingIndex - startingIndex >= 9) {
+      throw new RuntimeException("The range is toooooo big for the remainder!")
+    }
+
+    (startingIndex to endingIndex)
+      .map(n => numberToDigitSumMod_FAST(n))
+      .fold(BigInt(0)) { case (acc, next) => (acc + next).mod(answerMod) }
+  }
 
 }
 
